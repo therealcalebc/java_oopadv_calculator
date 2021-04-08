@@ -4,6 +4,9 @@
 package com.javaoopadv.calculator;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.ListIterator;
 
 /**
  * @author ccomstock
@@ -11,65 +14,50 @@ import java.io.Serializable;
  */
 public class Calculator implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4649675006852228136L;
-	private double operandOne = 0;
-	private double operandTwo = 0;
-	private String operation = "";
+	private ArrayList<String> operations;
 	private double result = 0;
+	private boolean operandSet = false;
 
-	/**
-	 * 
-	 */
-	public Calculator() {}
-
-	/**
-	 * @return the operandOne
-	 */
-	public double getOperandOne() {
-		return operandOne;
+	public Calculator() {
+		operations = new ArrayList<String>();
 	}
 
 	/**
-	 * @param operandOne the operandOne to set
+	 * @return the serialversionuid
 	 */
-	public void setOperandOne(double operandOne) {
-		result = 0;
-		this.operandOne = operandOne;
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	/**
-	 * @return the operandTwo
+	 * @return the operations
 	 */
-	public double getOperandTwo() {
-		return operandTwo;
+	public ArrayList<String> getOperations() {
+		return operations;
 	}
 
 	/**
-	 * @param operandTwo the operandTwo to set
+	 * @param operations the operations to set
 	 */
-	public void setOperandTwo(double operandTwo) {
-		result = 0;
-		this.operandTwo = operandTwo;
+	public void setOperations(ArrayList<String> operations) {
+		this.operations = operations;
 	}
 
 	/**
-	 * @return the operation
+	 * @return the operandSet
 	 */
-	public String getOperation() {
-		return operation;
-	}
+	  public boolean isOperandSet() { 
+		  return operandSet;
+	  }
+	 
 
 	/**
-	 * @param operation the operation to set
+	 * @param operandSet the operandSet to set
 	 */
-	public void setOperation(String operation) {
-		result = 0;
-		if(operation == "+" || operation == "-")
-			this.operation = operation;
-	}
+	  public void setOperandSet(boolean operandSet) { 
+		  this.operandSet = operandSet;
+	  }
 	
 	/**
 	 * @return the result
@@ -78,11 +66,103 @@ public class Calculator implements Serializable {
 		return result;
 	}
 
-	public void performOperation() {
+	/**
+	 * @param result the result to set
+	 */
+	public void setResult(double result) {
+		this.result = result;
+	}
+
+	/**
+	 * executes all calculations
+	 */
+	private void performOperations() {
+		//System.out.println("operations: " + 
+		//		Arrays.toString(operations.toArray(new String[0])));
+		
+		if(operations.isEmpty()) return;
+		else if(operations.size() == 1) {
+			result = Double.parseDouble(operations.get(0));
+			return;
+		}
+		
+		ListIterator<String> iterator = operations.listIterator();
+		result = 0;
+		while(iterator.hasNext()) {
+			double operand1 = 0;
+			double operand2 = 0;
+			String temp = iterator.next();
+			if(temp == "*" || temp == "/") {
+				iterator.remove();
+				operand1 = Double.parseDouble(iterator.previous());
+				iterator.remove();
+				operand2 = Double.parseDouble(iterator.next());
+				iterator.remove();
+				iterator.add(Double.toString(performOperation(operand1, operand2, temp)));
+			}
+		}
+		
+		//System.out.println("operations: " + 
+		//		Arrays.toString(operations.toArray(new String[0])));
+		
+		while(iterator.hasPrevious())
+			iterator.previous();
+		
+		while(iterator.hasNext()) {
+			double operand1 = 0;
+			double operand2 = 0;
+			String temp = iterator.next();
+			if(temp == "+" || temp == "-") {
+				iterator.remove();
+				operand1 = Double.parseDouble(iterator.previous());
+				iterator.remove();
+				operand2 = Double.parseDouble(iterator.next());
+				iterator.remove();
+				iterator.add(Double.toString(performOperation(operand1, operand2, temp)));
+			}
+		}
+		
+		//System.out.println("operations: " + 
+		//		Arrays.toString(operations.toArray(new String[0])));
+		
+		result = Double.parseDouble(iterator.previous());
+		iterator.remove();
+	}
+
+	/**
+	 * executes calculation
+	 */
+	private Double performOperation(double operand1, double operand2, String operation) {
 		if(operation == "+")
-			result = operandOne + operandTwo;
+			return operand1 + operand2;
 		else if(operation == "-")
-			result = operandOne - operandTwo;
+			return operand1 - operand2;
+		else if(operation == "*")
+			return operand1 * operand2;
+		else
+			return operand1 / operand2;
+	}
+	
+	public void performOperation(double operand) {
+		if(operandSet)
+			operations.set(operations.size()-1, Double.toString(operand));
+		else
+			operations.add(Double.toString(operand));
+		operandSet = true;
+	}
+	
+	public void performOperation(String operation) {
+		if(!operandSet) {
+			if(!operations.isEmpty())
+				operations.set(operations.size()-1, operation);
+			return;
+		}
+		
+		if(!(operation == "="))
+			operations.add(operation);
+		else
+			performOperations();
+		operandSet = false;
 	}
 
 }
