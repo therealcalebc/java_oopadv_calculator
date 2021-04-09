@@ -18,6 +18,7 @@ public class Calculator implements Serializable {
 	private ArrayList<String> operations;
 	private double result = 0;
 	private boolean operandSet = false;
+	private boolean debugState = false;
 
 	public Calculator() {
 		operations = new ArrayList<String>();
@@ -74,11 +75,26 @@ public class Calculator implements Serializable {
 	}
 
 	/**
+	 * @return the debugState
+	 */
+	public boolean getDebugState() {
+		return debugState;
+	}
+
+	/**
+	 * @param debugState the debugState to set
+	 */
+	public void setDebugState(boolean debugState) {
+		this.debugState = debugState;
+	}
+
+	/**
 	 * executes all calculations
 	 */
 	private void performOperations() {
-		//System.out.println("operations: " + 
-		//		Arrays.toString(operations.toArray(new String[0])));
+		if(debugState)
+			System.out.println("operations: " + 
+				Arrays.toString(operations.toArray(new String[0])));
 		
 		if(operations.isEmpty()) return;
 		else if(operations.size() == 1) {
@@ -102,11 +118,11 @@ public class Calculator implements Serializable {
 			}
 		}
 		
-		//System.out.println("operations: " + 
-		//		Arrays.toString(operations.toArray(new String[0])));
+		if(debugState)
+			System.out.println("operations: " + 
+				Arrays.toString(operations.toArray(new String[0])));
 		
-		while(iterator.hasPrevious())
-			iterator.previous();
+		iterator = operations.listIterator();
 		
 		while(iterator.hasNext()) {
 			double operand1 = 0;
@@ -122,8 +138,9 @@ public class Calculator implements Serializable {
 			}
 		}
 		
-		//System.out.println("operations: " + 
-		//		Arrays.toString(operations.toArray(new String[0])));
+		if(debugState)
+			System.out.println("operations: " + 
+				Arrays.toString(operations.toArray(new String[0])));
 		
 		result = Double.parseDouble(iterator.previous());
 		iterator.remove();
